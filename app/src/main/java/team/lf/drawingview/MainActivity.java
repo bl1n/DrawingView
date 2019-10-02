@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
                     mPaintView.setErase(false);
                     break;
                 case R.id.clear_sheet:
+                    mPaintView.setErase(false);
                     mPaintView.startNew();
                     break;
                 case R.id.eraser:
