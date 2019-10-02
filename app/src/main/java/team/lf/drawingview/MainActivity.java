@@ -3,6 +3,7 @@ package team.lf.drawingview;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -20,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView.OnNavigationItemSelectedListener mListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-            switch (menuItem.getItemId()){
+            switch (menuItem.getItemId()) {
                 case R.id.brush:
                     mPaintView.setErase(false);
                     break;
@@ -28,8 +29,10 @@ public class MainActivity extends AppCompatActivity {
                     mPaintView.startNew();
                     break;
                 case R.id.eraser:
-
                     mPaintView.setErase(true);
+                    break;
+                case R.id.settings:
+                    showSettings();
                     break;
                 case R.id.undo:
 
@@ -39,6 +42,11 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
     };
+
+    private void showSettings() {
+        Dialog settingsDialog = new Dialog(this);
+
+    }
 
 
     @Override
@@ -51,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
 
         mPaintView = findViewById(R.id.paintView);
         mPaintView.setBrushSize(MEDIUM_BRUSH);
-
 
 
     }
