@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">DrawingView</string>
+    <string name="brush_title">brush</string>
+    <string name="clear_sheet_tittle">clear sheet</string>
+    <string name="erase_title">erase</string>
+    <string name="undo_title">undo</string>
+    <string name="settings_tittle">settings</string>
+</resources>
