@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
                     showSettings();
                     break;
                 case R.id.undo:
-
+                    mPaintView.undo();
                     break;
             }
             Toast.makeText(MainActivity.this, menuItem.getTitle(), Toast.LENGTH_SHORT).show();

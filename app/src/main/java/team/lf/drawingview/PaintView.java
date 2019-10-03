@@ -9,129 +9,139 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PaintView extends View {
+    private static final String TAG = "PaintView";
     // To hold the path that will be drawn.
-    private Path drawPath;
-    // Paint object to draw drawPath and drawCanvas.
-    private Paint drawPaint, canvasPaint;
+    private Path mDrawPath;
+
+    // Paint object to draw mDrawPath and mDrawCanvas.
+    private Paint mDrawPaint, mCanvasPaint;
     // initial color
-    private int paintColor = 0xff000000;
-    private int previousColor = paintColor;
+    private int mPaintColor = 0xff000000;
+    private int mPreviousColor = mPaintColor;
     // canvas on which drawing takes place.
-    private Canvas drawCanvas;
+    private Canvas mDrawCanvas;
     // canvas bitmap
-    private Bitmap canvasBitmap;
+    private Bitmap mCanvasBitmap;
     // Brush stroke width
-    private float brushSize, lastBrushSize;
+    private float mBrushSize;
     // To enable and disable erasing mode.
     private boolean erase = false;
+    private Bitmap mCopyBitmap;
 
-    public PaintView(Context context, AttributeSet attrs){
+
+    public PaintView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setUpDrawing();
+        init();
     }
 
     /**
      * Initialize all objects required for drawing here.
      * One time initialization reduces resource consumption.
      */
-    private void setUpDrawing(){
-        drawPath = new Path();
-        drawPaint = new Paint();
-        drawPaint.setColor(paintColor);
+    private void init() {
+        mDrawPath = new Path();
+        mDrawPaint = new Paint();
+        mDrawPaint.setColor(mPaintColor);
         // Making drawing smooth.
-        drawPaint.setAntiAlias(true);
-        drawPaint.setStyle(Paint.Style.STROKE);
-        drawPaint.setStrokeJoin(Paint.Join.ROUND);
-        drawPaint.setStrokeCap(Paint.Cap.ROUND);
+        mDrawPaint.setAntiAlias(true);
+        mDrawPaint.setStyle(Paint.Style.STROKE);
+        mDrawPaint.setStrokeJoin(Paint.Join.ROUND);
+        mDrawPaint.setStrokeCap(Paint.Cap.ROUND);
 
-        canvasPaint = new Paint(Paint.DITHER_FLAG);
+        mCanvasPaint = new Paint(Paint.DITHER_FLAG);
 
-        brushSize = getResources().getInteger(R.integer.medium_size);
-        lastBrushSize = brushSize;
-        drawPaint.setStrokeWidth(brushSize);
+        mBrushSize = getResources().getInteger(R.integer.medium_size);
+        mDrawPaint.setStrokeWidth(mBrushSize);
+
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        drawCanvas = new Canvas(canvasBitmap);
+        mCanvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        mDrawCanvas = new Canvas(mCanvasBitmap);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
-        canvas.drawPath(drawPath, drawPaint);
+        canvas.drawBitmap(mCanvasBitmap, 0, 0, mCanvasPaint);
 
+        canvas.drawPath(mDrawPath, mDrawPaint);
     }
+
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        mCopyBitmap = mCanvasBitmap.copy(mCanvasBitmap.getConfig(), false);
         float touchX = event.getX();
         float touchY = event.getY();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                drawPath.moveTo(touchX, touchY);
+                mDrawPath.moveTo(touchX, touchY);
                 break;
             case MotionEvent.ACTION_MOVE:
-                drawPath.lineTo(touchX, touchY);
+                mDrawPath.lineTo(touchX, touchY);
                 break;
             case MotionEvent.ACTION_UP:
-                if (erase){
-                    drawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+                if (erase) {
+                    mDrawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
                 }
-                drawCanvas.drawPath(drawPath, drawPaint);
-                drawPath.reset();
-                drawPaint.setXfermode(null);
+
+                mDrawCanvas.drawPath(mDrawPath, mDrawPaint);
+                mDrawPath.reset();
+                mDrawPaint.setXfermode(null);
                 break;
             default:
                 return false;
         }
-
         invalidate();
         return true;
     }
 
-    public void setColor(int newColor){
+    public void setColor(int newColor) {
         // invalidate the view
         invalidate();
-        paintColor = newColor;
-        drawPaint.setColor(paintColor);
-        previousColor = paintColor;
+        mPaintColor = newColor;
+        mDrawPaint.setColor(mPaintColor);
+        mPreviousColor = mPaintColor;
     }
 
-    public void setBrushSize(float newSize){
-        float pixelAmount = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+    public void setBrushSize(float newSize) {
+        mBrushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 newSize, getResources().getDisplayMetrics());
-        brushSize=pixelAmount;
-        drawPaint.setStrokeWidth(brushSize);
+        mDrawPaint.setStrokeWidth(mBrushSize);
     }
 
-    public void setLastBrushSize(float lastSize){
-        lastBrushSize=lastSize;
-    }
-    public float getLastBrushSize(){
-        return lastBrushSize;
-    }
-
-    public void setErase(boolean isErase){
+    public void setErase(boolean isErase) {
         erase = isErase;
-        if(erase) {
-            drawPaint.setColor(Color.WHITE);
-        }
-        else {
-            drawPaint.setColor(previousColor);
-            drawPaint.setXfermode(null);
+        if (erase) {
+            mDrawPaint.setColor(Color.WHITE);
+        } else {
+            mDrawPaint.setColor(mPreviousColor);
+            mDrawPaint.setXfermode(null);
         }
     }
-    public void startNew(){
-        drawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
+
+    public void startNew() {
+        mDrawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
+        invalidate();
+    }
+
+    public void undo() {
+        mDrawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
+        mCanvasBitmap = mCopyBitmap.copy(mCopyBitmap.getConfig(),true);
+        mDrawCanvas = new Canvas(mCanvasBitmap);
         invalidate();
     }
 
