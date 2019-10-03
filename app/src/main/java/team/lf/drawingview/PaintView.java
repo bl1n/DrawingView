@@ -68,6 +68,7 @@ public class PaintView extends View {
         super.onDraw(canvas);
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
         canvas.drawPath(drawPath, drawPaint);
+
     }
 
     @Override
@@ -97,10 +98,10 @@ public class PaintView extends View {
         return true;
     }
 
-    public void setColor(String newColor){
+    public void setColor(int newColor){
         // invalidate the view
         invalidate();
-        paintColor = Color.parseColor(newColor);
+        paintColor = newColor;
         drawPaint.setColor(paintColor);
         previousColor = paintColor;
     }
